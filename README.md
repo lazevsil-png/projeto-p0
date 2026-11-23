@@ -1,160 +1,370 @@
+\# SciScreen.
 
 
-\# SciScreen
 
+\*Scientific literature screening, simplified.\*
 
 
-Assistente de triagem semântica de artigos científicos com LLM.
 
+Ferramenta de apoio à triagem inicial de artigos científicos por meio da análise semântica de resumos com modelos de linguagem.
 
 
-\## Sobre o projeto
 
+\*\*Python 3.13\*\* · \*\*Gemini API\*\* · \*\*Em desenvolvimento\*\*
 
 
-O SciScreen é uma aplicação Python desenvolvida
 
-para apoiar a triagem inicial de artigos científicos
+\---
 
-em revisões da literatura.
 
 
+\## 01 / Visão geral
 
-O programa analisa o conteúdo de um abstract
 
-considerando o objetivo da revisão e os critérios
 
-de inclusão e exclusão definidos pelo pesquisador.
+A seleção de estudos é uma etapa fundamental das revisões da literatura. Entretanto, a presença de palavras-chave em um resumo não garante que o trabalho seja relevante para a pergunta de pesquisa.
 
 
 
-\## Problema
+O \*\*SciScreen\*\* foi concebido para auxiliar nessa etapa, comparando o conteúdo de um resumo científico com o objetivo e os critérios de elegibilidade definidos pelo pesquisador.
 
 
 
-Buscas em bases científicas podem retornar artigos
+A ferramenta utiliza um modelo de linguagem (LLM) para produzir uma avaliação preliminar, acompanhada de justificativa e evidências textuais.
 
-que contêm palavras-chave ou siglas relacionadas
 
-à pesquisa, mas que não correspondem ao tema
 
-investigado.
+\*\*O SciScreen não substitui a avaliação crítica do pesquisador nem determina a inclusão definitiva de um estudo.\*\*
 
 
 
-A leitura manual dos resumos para identificar
+\## 02 / Funcionamento
 
-esses resultados pode demandar bastante tempo.
 
 
+O fluxo de análise utiliza três entradas:
 
-\## Solução proposta
 
 
+| Entrada | Descrição |
 
-Utilizar um modelo de linguagem (LLM) para
+|---|---|
 
-interpretar semanticamente o abstract e fornecer
+| Objetivo | Pergunta ou finalidade da revisão |
 
-uma recomendação preliminar de triagem.
+| Critérios | Condições de inclusão e exclusão dos estudos |
 
+| Resumo | Abstract do artigo a ser avaliado |
 
 
-\## Entradas
 
+\*\*Fluxo de processamento\*\*
 
 
-\- Objetivo da revisão.
 
-\- Critérios de inclusão e exclusão.
+```text
 
-\- Abstract do artigo.
+Objetivo da revisão
 
+&#x20;       +
 
+Critérios de elegibilidade
 
-\## Saídas esperadas
+&#x20;       +
 
+Resumo científico
 
+&#x20;       |
 
-\- Classificação preliminar de relevância.
+&#x20;       v
 
-\- Justificativa.
+Construção do prompt
 
-\- Evidências extraídas do abstract.
+&#x20;       |
 
-\- Recomendação para o pesquisador.
+&#x20;       v
 
+Modelo de linguagem
 
+&#x20;       |
 
-\## Classificações
+&#x20;       v
 
+Classificação preliminar
 
+&#x20;       +
 
-1\. Potencialmente relevante.
+Justificativa e evidências
 
-2\. Potencialmente irrelevante.
+&#x20;       +
 
-3\. Informações insuficientes.
+Recomendação para avaliação humana
 
+```
 
 
-\## Tecnologias
 
+A análise é realizada individualmente para cada resumo fornecido no terminal.
 
 
-\- Python 3.13
 
-\- Google Gemini API
+\## 03 / Classificação
 
-\- python-dotenv
 
-\- Git e GitHub
 
+O SciScreen trabalha com três categorias de triagem:
 
 
-\## Estado atual
 
+| Classificação | Interpretação |
 
+|---|---|
 
-Em desenvolvimento.
+| Potencialmente relevante | O resumo apresenta elementos compatíveis com os critérios estabelecidos |
 
+| Potencialmente irrelevante | O resumo apresenta elementos que indicam incompatibilidade com os critérios |
 
+| Informações insuficientes | O resumo não contém informações suficientes para uma avaliação preliminar fundamentada |
 
-A entrada de dados, a validação e a preparação
 
-do prompt estão implementadas.
 
+Cada resultado deve apresentar uma justificativa, evidências identificadas no texto e uma recomendação de próximo passo.
 
 
-A integração com a API foi desenvolvida, mas
 
-ainda não foi validada por uma resposta real
+As classificações representam \*\*recomendações preliminares\*\*, não decisões definitivas de elegibilidade.
 
-bem-sucedida devido a erros HTTP 503.
 
 
+\## 04 / Estrutura do projeto
 
-\## Limitações
 
 
+```text
 
-O SciScreen não substitui a avaliação humana,
+projeto-p0/
 
-não determina a elegibilidade definitiva de
+├── main.py
 
-artigos e não realiza buscas automáticas
+├── prompt\_sciscreen.py
 
-em bases científicas nesta versão.
+├── llm\_service.py
 
+├── test\_prompt.py
 
+├── teste\_gemini.py
 
-\## Projeto acadêmico
+├── listar\_modelos.py
 
+├── simulador.py
 
+├── requirements.txt
 
-Desenvolvido para o P0 - Primeiro Fluxo com LLM,
+├── .env.example
 
-da capacitação Hardware BR.
+├── .gitignore
 
+└── README.md
 
+```
+
+
+
+| Arquivo | Responsabilidade |
+
+|---|---|
+
+| `main.py` | Receber entradas e apresentar a análise |
+
+| `prompt\_sciscreen.py` | Construir as instruções enviadas à LLM |
+
+| `llm\_service.py` | Gerenciar a comunicação com a API |
+
+| `test\_prompt.py` | Verificar a construção do prompt |
+
+| `teste\_gemini.py` | Testar a comunicação com o modelo |
+
+| `listar\_modelos.py` | Consultar modelos disponibilizados pela API |
+
+| `simulador.py` | Demonstrar uma saída fictícia, sem chamada à API |
+
+
+
+\## 05 / Instalação
+
+
+
+\*\*Pré-requisito:\*\* Python 3.13.
+
+
+
+Clone o repositório:
+
+
+
+```bash
+
+git clone https://github.com/lazevsil-png/projeto-p0.git
+
+cd projeto-p0
+
+```
+
+
+
+Crie um ambiente virtual:
+
+
+
+```bash
+
+python -m venv .venv
+
+```
+
+
+
+No Windows, usando o Prompt de Comando:
+
+
+
+```cmd
+
+.venv\\Scripts\\activate
+
+```
+
+
+
+Instale as dependências:
+
+
+
+```bash
+
+python -m pip install -r requirements.txt
+
+```
+
+
+
+Crie um arquivo `.env` na raiz do projeto, utilizando `.env.example` como referência:
+
+
+
+```dotenv
+
+GEMINI\_API\_KEY=SUA\_CHAVE\_AQUI
+
+```
+
+
+
+Substitua o valor de exemplo por uma chave válida da API.
+
+
+
+\*\*Segurança:\*\* o arquivo `.env` contém informações sensíveis e não deve ser publicado no repositório.
+
+
+
+\## 06 / Execução
+
+
+
+Com o ambiente virtual ativado e a configuração concluída, execute:
+
+
+
+```bash
+
+python main.py
+
+```
+
+
+
+O programa solicitará o objetivo da revisão, os critérios de elegibilidade e o resumo científico.
+
+
+
+\*\*Estado atual:\*\* a entrada de dados e a construção do prompt foram implementadas. A integração com o Gemini ainda está em validação devido a respostas de indisponibilidade do serviço durante os testes.
+
+
+
+\### Testes locais
+
+
+
+Para verificar a construção do prompt:
+
+
+
+```bash
+
+python -m unittest test\_prompt.py
+
+```
+
+
+
+Para executar a demonstração fictícia:
+
+
+
+```bash
+
+python simulador.py
+
+```
+
+
+
+O simulador não realiza chamadas à API e não comprova o funcionamento da integração com a LLM.
+
+
+
+\## 07 / Limitações
+
+
+
+\- A classificação depende da qualidade das informações fornecidas e da resposta do modelo.
+
+\- Resumos podem omitir informações necessárias para avaliar os critérios de elegibilidade.
+
+\- Modelos de linguagem podem produzir interpretações incorretas ou justificativas sem suporte textual adequado.
+
+\- A versão inicial processa um resumo por execução e não realiza buscas automáticas em bases bibliográficas.
+
+\- A integração com a API ainda precisa ser validada por uma execução real bem-sucedida.
+
+
+
+O resultado deve ser interpretado como apoio à triagem, mantendo a decisão final sob responsabilidade humana.
+
+
+
+\## 08 / Desenvolvimento
+
+
+
+O SciScreen está sendo desenvolvido no âmbito do \*\*P0 — Primeiro fluxo com LLM\*\*, da capacitação do Instituto Hardware BR.
+
+
+
+O projeto busca demonstrar um fluxo reproduzível de desenvolvimento em Python, envolvendo integração com LLM, organização modular, proteção de credenciais, tratamento de falhas, testes e documentação.
+
+
+
+A evolução será registrada por etapas, conforme os requisitos da capacitação.
+
+
+
+\---
+
+
+
+\*\*SciScreen.\*\*  
+
+\*Research support, not automated scientific judgment.\*
 
