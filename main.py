@@ -22,7 +22,7 @@ else:
 
     prompt = criar_prompt(objetivo, criterios, resumo)
 
-    print("\nAnalisando o abstract com Gemini...")
+    print("\nAnalisando o abstract com GroqCloud...")
     print("Aguarde alguns instantes.\n")
 
     resultado = analisar_resumo(prompt)
