@@ -1,5 +1,3 @@
-
-
 \# SciScreen — Relatório de Execução
 
 
@@ -112,11 +110,11 @@ A aplicação conseguiu enviar um prompt real à LLM e apresentar a resposta no 
 
 
 
-As credenciais foram armazenadas em um arquivo .env, excluído do controle de versão por meio do .gitignore.
+As credenciais foram armazenadas em um arquivo `.env`, excluído do controle de versão por meio do `.gitignore`.
 
 
 
-O arquivo .env.example foi atualizado para indicar as variáveis necessárias à configuração do projeto.
+O arquivo `.env.example` foi atualizado para indicar as variáveis necessárias à configuração do projeto.
 
 
 
@@ -134,13 +132,7 @@ Foram realizados testes manuais e automatizados para verificar o comportamento d
 
 \- Execução do fluxo principal com uma chamada real à LLM;
 
-\- Validação de campos vazios;
-
-\- Simulação de credencial ausente;
-
-\- Simulação de credencial inválida;
-
-\- Simulação de falha de comunicação.
+\- Validação de campos vazios.
 
 
 
@@ -148,7 +140,7 @@ Foram realizados testes manuais e automatizados para verificar o comportamento d
 
 
 
-Foi criado o arquivo test\_llm\_service.py, utilizando a biblioteca unittest e simulações com unittest.mock.
+Foi criado o arquivo `test\_llm\_service.py`, utilizando a biblioteca `unittest` e simulações com `unittest.mock`.
 
 
 
@@ -166,23 +158,189 @@ Foram verificados quatro cenários:
 
 
 
+Na primeira execução no ambiente de desenvolvimento, os quatro testes foram aprovados.
+
+
+
 \*\*Resultado observado:\*\*
 
 
 
-Ran 4 tests in 0.004s
+&#x20;   Ran 4 tests in 0.004s
 
 
 
-OK
+&#x20;   OK
 
 
 
-Os quatro testes automatizados foram aprovados no ambiente de desenvolvimento.
+Os testes foram implementados utilizando simulações do cliente Groq, sem realizar chamadas reais à API.
 
 
 
-Esses testes não realizam chamadas reais à API e podem ser executados novamente por outros desenvolvedores.
+Entretanto, a verificação posterior em ambiente limpo revelou uma dependência não intencional da configuração local das credenciais, conforme descrito na seção seguinte.
+
+
+
+\### 4.3. Verificação de reprodutibilidade em ambiente limpo
+
+
+
+Para verificar a possibilidade de reprodução do projeto por outros desenvolvedores, foi criada uma cópia independente do repositório público do SciScreen.
+
+
+
+O procedimento foi realizado em ambiente Windows, utilizando Python 3.13, sem reutilizar o ambiente virtual do projeto original.
+
+
+
+As seguintes etapas foram executadas:
+
+
+
+1\. Clonagem do repositório público do GitHub;
+
+2\. Criação de um novo ambiente virtual Python;
+
+3\. Ativação do ambiente virtual;
+
+4\. Instalação das dependências declaradas no arquivo `requirements.txt`;
+
+5\. Execução dos testes automatizados sem configurar uma chave de API real.
+
+
+
+A instalação das dependências foi concluída com sucesso.
+
+
+
+\*\*Primeira execução dos testes em ambiente limpo\*\*
+
+
+
+Apesar da aprovação anterior dos testes no ambiente de desenvolvimento, a primeira execução na instalação independente apresentou três falhas.
+
+
+
+&#x20;   Ran 4 tests in 0.008s
+
+
+
+&#x20;   FAILED (failures=3)
+
+
+
+| Cenário avaliado | Resultado inicial |
+
+|---|---|
+
+| Chave de API ausente | Aprovado |
+
+| Credencial inválida | Reprovado |
+
+| Falha de comunicação | Reprovado |
+
+| Resposta válida simulada | Reprovado |
+
+
+
+Os três testes reprovados retornaram a mensagem de ausência da chave de API, em vez dos resultados esperados para cada cenário.
+
+
+
+\*\*Diagnóstico\*\*
+
+
+
+A análise do código revelou que os testes simulavam o cliente Groq, mas não simulavam a presença da variável de ambiente correspondente à chave de API.
+
+
+
+Consequentemente, a aplicação interrompia a execução antes de alcançar os comportamentos simulados.
+
+
+
+Esse resultado demonstrou que a aprovação inicial dos testes estava condicionada à configuração do ambiente de desenvolvimento.
+
+
+
+\*\*Correção implementada\*\*
+
+
+
+Foi adicionada uma simulação da leitura da variável de ambiente nos testes de credencial inválida, falha de comunicação e resposta válida:
+
+
+
+&#x20;   @patch("llm\_service.os.getenv", return\_value="chave\_ficticia")
+
+
+
+A alteração permitiu que os testes alcançassem os cenários simulados sem depender de credenciais reais.
+
+
+
+O teste de ausência da chave foi preservado, assim como a estrutura do código principal da aplicação.
+
+
+
+\*\*Resultados após a correção\*\*
+
+
+
+Os testes foram executados novamente no ambiente original e na instalação independente.
+
+
+
+| Ambiente de execução | Testes aprovados | Tempo |
+
+|---|---:|---:|
+
+| Ambiente original após correção | 4/4 | 0,007 s |
+
+| Ambiente limpo após correção | 4/4 | 0,005 s |
+
+| Ambiente limpo com código atualizado diretamente do GitHub | 4/4 | 0,005 s |
+
+
+
+A correção foi registrada e publicada no repositório por meio do commit `b350cb2`, identificado pela mensagem:
+
+
+
+&#x20;   fix: torna testes independentes da chave de API
+
+
+
+Após a publicação, a cópia de teste foi restaurada para eliminar a alteração manual e atualizada diretamente pelo GitHub.
+
+
+
+A execução dos testes com a versão publicada apresentou o seguinte resultado:
+
+
+
+&#x20;   Ran 4 tests in 0.005s
+
+
+
+&#x20;   OK
+
+
+
+\*\*Conclusão da verificação\*\*
+
+
+
+Os resultados demonstraram que as dependências declaradas puderam ser instaladas em um ambiente virtual independente e que os quatro testes automatizados do serviço de LLM puderam ser reproduzidos sem credenciais reais.
+
+
+
+O procedimento também permitiu identificar e corrigir uma dependência não intencional da configuração local, evidenciando a importância dos testes em ambientes independentes.
+
+
+
+A verificação foi limitada ao ambiente Windows utilizado e aos quatro testes do serviço de LLM, não constituindo uma validação integral da aplicação em diferentes sistemas operacionais.
 
 
 
@@ -210,6 +368,18 @@ Os testes com simulações permitem verificar situações de falha sem depender 
 
 
 
+A simulação explícita da leitura das credenciais foi adotada para garantir a independência dos testes em relação às configurações locais.
+
+
+
+A criação de um ambiente virtual separado permitiu verificar a instalação e a execução dos testes sem comprometer o ambiente original de desenvolvimento.
+
+
+
+O controle de versão com Git e GitHub permitiu registrar a evolução do projeto, identificar a versão corrigida e verificar o comportamento do código efetivamente publicado.
+
+
+
 \## 6. Limitações identificadas
 
 
@@ -234,23 +404,61 @@ Os testes automatizados verificam comportamentos específicos do código, mas n�
 
 
 
+A verificação de reprodutibilidade foi realizada em ambiente Windows com Python 3.13, não tendo sido estendida a outros sistemas operacionais.
+
+
+
+Embora as versões das dependências diretas estejam especificadas no arquivo `requirements.txt`, as dependências transitivas não estão integralmente fixadas, podendo ocorrer variações em instalações futuras.
+
+
+
 \## 7. Próximas etapas
 
 
 
-As seguintes atividades ainda precisam ser verificadas ou concluídas:
+\### 7.1. Atividades concluídas
 
 
 
-\- Testar a instalação em um ambiente limpo;
+\- Implementação do fluxo principal de interação com a LLM;
 
-\- Revisar e completar o README;
+\- Integração com a API GroqCloud;
 
-\- Documentar exemplos de entrada e saída;
+\- Execução de uma chamada real à LLM;
+
+\- Implementação de testes automatizados para o serviço de LLM;
+
+\- Configuração da proteção local das credenciais;
+
+\- Publicação do código-fonte e da documentação inicial no GitHub;
+
+\- Documentação de um exemplo ilustrativo de entrada e saída no README;
+
+\- Instalação das dependências em ambiente virtual independente;
+
+\- Identificação e correção das falhas de reprodutibilidade dos testes;
+
+\- Verificação dos quatro testes do serviço de LLM utilizando a versão corrigida publicada no GitHub.
+
+
+
+\### 7.2. Atividades pendentes
+
+
+
+\- Atualizar o README com os resultados da verificação em ambiente limpo;
+
+\- Executar e verificar os demais testes do projeto;
+
+\- Consolidar as evidências de execução da aplicação;
+
+\- Verificar o histórico do repositório quanto à exposição de credenciais;
 
 \- Organizar as evidências dos níveis da capacitação;
 
-\- Verificar os requisitos de versionamento, tags e pull request;
+\- Verificar e implementar os requisitos de versionamento, tags e pull request;
+
+\- Desenvolver e documentar as etapas subsequentes do P0;
 
 \- Preparar o vídeo demonstrativo;
 
@@ -266,11 +474,21 @@ Até esta etapa, o SciScreen demonstrou ser capaz de receber informações cient
 
 
 
-Os testes realizados também demonstraram o tratamento de situações específicas de erro.
+Os testes realizados demonstraram o tratamento de situações específicas de erro, incluindo ausência de credenciais, falhas de autenticação e problemas de comunicação.
 
 
 
-O projeto permanece em desenvolvimento, com foco na reprodutibilidade, documentação e conclusão dos requisitos da capacitação.
+A verificação em ambiente independente permitiu identificar uma limitação nos testes automatizados que não havia sido observada no ambiente original de desenvolvimento.
 
 
+
+A correção implementada eliminou a dependência dos testes em relação à configuração local das credenciais, permitindo a aprovação dos quatro cenários avaliados na versão publicada do projeto.
+
+
+
+Esse processo evidenciou um ciclo de desenvolvimento composto por implementação, teste, identificação de falha, diagnóstico, correção, versionamento e nova verificação.
+
+
+
+O projeto permanece em desenvolvimento, com foco na consolidação da reprodutibilidade, na documentação das evidências e na conclusão dos requisitos da capacitação.
 

@@ -152,18 +152,20 @@ A variável `GEMINI_API_KEY` é opcional e utilizada apenas nos testes experimen
 
 A utilização da API está sujeita aos limites e às condições do plano disponibilizado pelo provedor.
 
+
 ### Verificar a instalação
 
-Para confirmar que as dependências foram instaladas corretamente, execute:
+Para verificar o funcionamento do serviço de LLM após a instalação das dependências, execute:
 
 ```bash
 python -m unittest test_llm_service.py -v
 ```
 
-Esse comando executa quatro testes automatizados utilizando simulações, sem realizar chamadas reais à API.
+Esse comando executa quatro testes automatizados utilizando simulações, sem realizar chamadas reais à API e sem exigir uma chave de API configurada.
+
+O procedimento de clonagem, criação do ambiente virtual, instalação das dependências e execução dos quatro testes foi verificado com sucesso em um ambiente independente, utilizando Windows e Python 3.13.
 
 Para executar a aplicação com uma análise real, consulte a seção **06 / Execução e testes**.
-
 
 
 ## 06 / Execução e testes
@@ -184,6 +186,7 @@ Após validar as entradas, o SciScreen constrói um prompt e o envia à API do G
 
 A resposta é apresentada no terminal, com uma avaliação preliminar da relevância do estudo.
 
+
 ### Testes automatizados
 
 Para executar os testes do serviço de LLM:
@@ -199,9 +202,29 @@ Os quatro testes verificam:
 - Falha de comunicação;
 - Retorno de uma resposta válida.
 
-Os testes utilizam simulações e não realizam chamadas reais à API.
+Os testes utilizam simulações e não realizam chamadas reais à API, sendo independentes da configuração de credenciais reais.
 
-**Resultado observado:** quatro testes aprovados, sem falhas.
+**Resultados observados:**
+
+| Ambiente | Testes aprovados |
+| --- | ---: |
+| Ambiente original após correção | 4/4 |
+| Ambiente virtual independente após correção | 4/4 |
+| Ambiente independente com código atualizado pelo GitHub | 4/4 |
+
+**Resultado da verificação da versão publicada:**
+
+```text
+Ran 4 tests in 0.005s
+
+OK
+```
+
+A primeira execução em ambiente limpo revelou uma dependência não intencional das credenciais locais em três testes. A falha foi corrigida por meio da simulação explícita da leitura da chave de API.
+
+A correção foi publicada no commit `b350cb2` e verificada novamente utilizando o código obtido diretamente do GitHub.
+
+O processo de diagnóstico, correção e reteste está documentado no [Relatório de Execução](RELATORIO_EXECUCAO.md).
 
 Para executar os testes da construção do prompt:
 
@@ -266,6 +289,7 @@ A resposta acima é ilustrativa e não representa uma saída registrada de uma e
 
 O SciScreen oferece apoio à triagem inicial; a decisão de elegibilidade permanece sob responsabilidade do pesquisador.
 
+
 ## 07 / Limitações
 
 - A qualidade da triagem depende da clareza dos objetivos e critérios fornecidos pelo pesquisador.
@@ -274,9 +298,11 @@ O SciScreen oferece apoio à triagem inicial; a decisão de elegibilidade perman
 - A aplicação processa um resumo por execução e não realiza buscas automáticas em bases científicas.
 - A comunicação com o GroqCloud depende de conexão com a internet, credencial válida, disponibilidade do serviço e limites de utilização da API.
 - Os testes automatizados verificam o comportamento do código em cenários específicos, mas não demonstram a precisão científica das classificações.
-- A instalação e a execução em um ambiente limpo ainda precisam ser verificadas.
+- A instalação das dependências e os quatro testes do serviço de LLM foram verificados em ambiente virtual independente, utilizando Windows e Python 3.13. A compatibilidade com outros sistemas operacionais ainda não foi avaliada.
+- As versões das dependências diretas estão especificadas no arquivo `requirements.txt`, mas as dependências transitivas não estão integralmente fixadas.
 
 O SciScreen é uma ferramenta de apoio à triagem preliminar. A decisão final de inclusão ou exclusão de artigos permanece sob responsabilidade do pesquisador.
+
 
 
 ## 08 / Desenvolvimento
@@ -287,9 +313,28 @@ O projeto utiliza Python 3.13 e integra o modelo `openai/gpt-oss-20b` por meio d
 
 O desenvolvimento contempla entrada e validação de dados, construção de prompts, comunicação com a LLM, proteção de credenciais e testes automatizados.
 
+### Progresso do desenvolvimento
+
+- [x] Implementação do fluxo principal.
+- [x] Integração com a API GroqCloud.
+- [x] Execução de uma chamada real à LLM.
+- [x] Validação de entradas obrigatórias.
+- [x] Configuração da proteção local das credenciais.
+- [x] Implementação dos testes automatizados do serviço de LLM.
+- [x] Publicação do código-fonte no GitHub.
+- [x] Instalação das dependências em ambiente virtual independente.
+- [x] Correção das falhas identificadas nos testes em ambiente limpo.
+- [x] Aprovação dos quatro testes do serviço de LLM com a versão publicada no GitHub.
+- [ ] Verificação dos demais testes do projeto.
+- [ ] Verificação do histórico quanto à exposição de credenciais.
+- [ ] Consolidação das evidências dos níveis da capacitação.
+- [ ] Versionamento por tags e pull request.
+- [ ] Vídeo demonstrativo.
+- [ ] Conclusão das demais atividades da capacitação.
+
 A evolução do projeto, as decisões técnicas, os testes realizados e as limitações identificadas estão documentados no [Relatório de Execução](RELATORIO_EXECUCAO.md).
 
-**Situação atual:** fluxo principal funcional e testes automatizados aprovados. A documentação, a verificação de reprodutibilidade e as demais entregas da capacitação continuam em andamento.
+**Situação atual:** fluxo principal funcional, integração real com a LLM demonstrada e quatro testes do serviço de LLM reproduzidos em ambiente virtual independente. O projeto permanece em desenvolvimento.
 
 ---
 
