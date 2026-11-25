@@ -88,7 +88,6 @@ projeto-p0/
 | `teste_groq.py` | Verificar a comunicação real com o GroqCloud |
 | `RELATORIO_EXECUCAO.md` | Documentar a evolução, os testes e as decisões técnicas |
 
-
 ## 05 / Instalação
 
 **Pré-requisito:** Python 3.13 e acesso à internet para comunicação com a API.
@@ -152,21 +151,33 @@ A variável `GEMINI_API_KEY` é opcional e utilizada apenas nos testes experimen
 
 A utilização da API está sujeita aos limites e às condições do plano disponibilizado pelo provedor.
 
+### Verificação de segurança
+
+Foram realizadas verificações direcionadas no repositório local:
+
+| Verificação | Resultado |
+| --- | --- |
+| Arquivo `.env` no histórico local | Não identificado |
+| Padrões de chaves GroqCloud no histórico | Não identificados |
+| Padrões de chaves Gemini no histórico | Não identificados |
+| Regra de exclusão no `.gitignore` | Confirmada |
+| Rastreamento atual do `.env` | Não identificado |
+
+A inspeção foi limitada aos padrões pesquisados e ao histórico local disponível; não constitui uma auditoria exaustiva de segurança.
 
 ### Verificar a instalação
 
-Para verificar o funcionamento do serviço de LLM após a instalação das dependências, execute:
+Para verificar o funcionamento do serviço de LLM e a construção do prompt após a instalação das dependências, execute:
 
 ```bash
-python -m unittest test_llm_service.py -v
+python -m unittest test_prompt test_llm_service -v
 ```
 
-Esse comando executa quatro testes automatizados utilizando simulações, sem realizar chamadas reais à API e sem exigir uma chave de API configurada.
+Esse comando executa cinco testes automatizados utilizando simulações, sem realizar chamadas reais à API e sem exigir uma chave de API configurada.
 
-O procedimento de clonagem, criação do ambiente virtual, instalação das dependências e execução dos quatro testes foi verificado com sucesso em um ambiente independente, utilizando Windows e Python 3.13.
+O procedimento de clonagem, criação do ambiente virtual, instalação das dependências e execução dos cinco testes foi verificado com sucesso em um ambiente independente, utilizando Windows e Python 3.13.
 
 Para executar a aplicação com uma análise real, consulte a seção **06 / Execução e testes**.
-
 
 ## 06 / Execução e testes
 
@@ -185,7 +196,6 @@ O programa solicitará três informações:
 Após validar as entradas, o SciScreen constrói um prompt e o envia à API do GroqCloud, utilizando o modelo `openai/gpt-oss-20b`.
 
 A resposta é apresentada no terminal, com uma avaliação preliminar da relevância do estudo.
-
 
 ### Testes automatizados
 
@@ -232,6 +242,14 @@ Para executar os testes da construção do prompt:
 python -m unittest test_prompt.py
 ```
 
+Para executar os cinco testes conjuntamente:
+
+```bash
+python -m unittest test_prompt test_llm_service -v
+```
+
+**Resultado consolidado em ambiente virtual independente:** cinco testes aprovados (5/5), sem falhas. Os quatro testes do serviço de LLM e o teste de construção do prompt não exigem chamadas reais à API.
+
 ### Demonstração sem API
 
 Para visualizar uma saída fictícia, execute:
@@ -249,7 +267,6 @@ A integração com o GroqCloud foi executada com sucesso, incluindo uma chamada 
 A aplicação também demonstrou validação de entradas obrigatórias e tratamento de falhas simuladas.
 
 A precisão científica das classificações ainda não foi avaliada sistematicamente.
-
 
 ### Exemplo de utilização
 
@@ -289,7 +306,6 @@ A resposta acima é ilustrativa e não representa uma saída registrada de uma e
 
 O SciScreen oferece apoio à triagem inicial; a decisão de elegibilidade permanece sob responsabilidade do pesquisador.
 
-
 ## 07 / Limitações
 
 - A qualidade da triagem depende da clareza dos objetivos e critérios fornecidos pelo pesquisador.
@@ -298,12 +314,10 @@ O SciScreen oferece apoio à triagem inicial; a decisão de elegibilidade perman
 - A aplicação processa um resumo por execução e não realiza buscas automáticas em bases científicas.
 - A comunicação com o GroqCloud depende de conexão com a internet, credencial válida, disponibilidade do serviço e limites de utilização da API.
 - Os testes automatizados verificam o comportamento do código em cenários específicos, mas não demonstram a precisão científica das classificações.
-- A instalação das dependências e os quatro testes do serviço de LLM foram verificados em ambiente virtual independente, utilizando Windows e Python 3.13. A compatibilidade com outros sistemas operacionais ainda não foi avaliada.
+- A instalação das dependências e os cinco testes automatizados foram verificados em ambiente virtual independente, utilizando Windows e Python 3.13. A compatibilidade com outros sistemas operacionais ainda não foi avaliada.
 - As versões das dependências diretas estão especificadas no arquivo `requirements.txt`, mas as dependências transitivas não estão integralmente fixadas.
 
 O SciScreen é uma ferramenta de apoio à triagem preliminar. A decisão final de inclusão ou exclusão de artigos permanece sob responsabilidade do pesquisador.
-
-
 
 ## 08 / Desenvolvimento
 
@@ -325,8 +339,8 @@ O desenvolvimento contempla entrada e validação de dados, construção de prom
 - [x] Instalação das dependências em ambiente virtual independente.
 - [x] Correção das falhas identificadas nos testes em ambiente limpo.
 - [x] Aprovação dos quatro testes do serviço de LLM com a versão publicada no GitHub.
-- [ ] Verificação dos demais testes do projeto.
-- [ ] Verificação do histórico quanto à exposição de credenciais.
+- [x] Aprovação dos cinco testes automatizados em ambiente independente.
+- [x] Verificação direcionada de segurança das credenciais no histórico local e no estado atual do Git.
 - [ ] Consolidação das evidências dos níveis da capacitação.
 - [ ] Versionamento por tags e pull request.
 - [ ] Vídeo demonstrativo.
@@ -334,7 +348,7 @@ O desenvolvimento contempla entrada e validação de dados, construção de prom
 
 A evolução do projeto, as decisões técnicas, os testes realizados e as limitações identificadas estão documentados no [Relatório de Execução](RELATORIO_EXECUCAO.md).
 
-**Situação atual:** fluxo principal funcional, integração real com a LLM demonstrada e quatro testes do serviço de LLM reproduzidos em ambiente virtual independente. O projeto permanece em desenvolvimento.
+**Situação atual:** fluxo principal funcional, integração real com a LLM demonstrada cinco testes automatizados aprovados em ambiente virtual independente e verificações direcionadas de segurança concluídas. O projeto permanece em desenvolvimento.
 
 ---
 
