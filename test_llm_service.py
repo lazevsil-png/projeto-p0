@@ -19,8 +19,9 @@ class TestSciScreen(unittest.TestCase):
             "ERRO: Chave da API nao configurada."
         )
 
+    @patch("llm_service.os.getenv", return_value="chave_ficticia")
     @patch("llm_service.Groq")
-    def test_credencial_invalida(self, mock_groq):
+    def test_credencial_invalida(self, mock_groq, mock_getenv):
         resposta = httpx.Response(
             401,
             request=httpx.Request(
@@ -44,8 +45,9 @@ class TestSciScreen(unittest.TestCase):
             "ERRO: Problema de autenticacao ou permissao."
         )
 
+    @patch("llm_service.os.getenv", return_value="chave_ficticia")
     @patch("llm_service.Groq")
-    def test_falha_comunicacao(self, mock_groq):
+    def test_falha_comunicacao(self, mock_groq, mock_getenv):
         erro = APIConnectionError(
             request=httpx.Request(
                 "POST",
@@ -62,8 +64,9 @@ class TestSciScreen(unittest.TestCase):
             "ERRO: Falha de conexao com a API."
         )
 
+    @patch("llm_service.os.getenv", return_value="chave_ficticia")
     @patch("llm_service.Groq")
-    def test_resposta_valida(self, mock_groq):
+    def test_resposta_valida(self, mock_groq, mock_getenv):
         mock_groq.return_value.chat.completions.create.return_value.choices = [
             type(
                 "Choice",
