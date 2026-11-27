@@ -367,14 +367,15 @@ O desenvolvimento contempla entrada e validação de dados, construção de prom
 - [x] Execução real após a refatoração.
 - [x] Aprovação dos 11 testes automatizados no ambiente local.
 - [ ] Reprodução da versão intermediária em ambiente independente.
-- [ ] Integração da branch por pull request e publicação da tag `p0-intermediario`.
+- [x] Integração da branch por pull request #1 (commit `8fa541c`).
+- [ ] Publicação da tag `p0-intermediario`.
 - [ ] Publicação da tag `p0-avancado`.
 - [ ] Vídeo demonstrativo.
 - [ ] Conclusão das demais atividades da capacitação.
 
 A evolução do projeto, as decisões técnicas, os testes realizados e as limitações identificadas estão documentados no [Relatório de Execução](RELATORIO_EXECUCAO.md).
 
-**Situação atual:** fluxo principal funcional, integração real com a LLM demonstrada após a refatoração, cinco testes do nível básico aprovados em ambiente independente e 11 testes do nível intermediário aprovados no ambiente local. A integração à branch principal permanece pendente.
+**Situação atual:** fluxo principal funcional, integração real com a LLM demonstrada após a refatoração, cinco testes do nível básico aprovados em ambiente independente e 11 testes do nível intermediário aprovados no ambiente local. As melhorias foram integradas à branch principal pelo pull request #1 (commit `8fa541c`).
 
 ---
 

@@ -212,7 +212,7 @@ Após a publicação da tag `p0-basico`, foi criada a branch `desenvolvimento-in
 
 A configuração passou a rejeitar credenciais compostas apenas por espaços. Foram diferenciados os erros de timeout e conexão, ampliado o tratamento de indisponibilidade (HTTP 500, 502, 503 e 504) e explicitada a validação de respostas vazias ou com estrutura inesperada.
 
-As alterações no serviço e nos testes foram registradas no commit `4cf1e27` (`feat: refatora servico LLM e amplia tratamento de erros e testes`). A integração da branch à principal permanece pendente.
+As alterações no serviço e nos testes foram registradas no commit `4cf1e27`. A documentação foi consolidada no commit `a0d0f0e`. A branch de desenvolvimento foi integrada à branch principal por meio do pull request #1, sem conflitos, no commit de integração `8fa541c`.
 
 ### 4.7. Ampliação dos testes automatizados
 
@@ -308,6 +308,7 @@ Embora as versões das dependências diretas estejam especificadas no arquivo `r
 
 - Publicação da tag `p0-basico`;
 - Criação da branch `desenvolvimento-intermediario`;
+- Publicação da branch de desenvolvimento no GitHub e integração à branch principal por meio do pull request #1 (commit `8fa541c`);
 - Refatoração do serviço de LLM e ampliação da suíte para onze testes;
 - Execução real após a refatoração e identificação de erro científico na resposta.
 
@@ -317,7 +318,7 @@ Embora as versões das dependências diretas estejam especificadas no arquivo `r
 - Reproduzir os 11 testes automatizados em ambiente independente;
 - Consolidar as evidências de execução da aplicação;
 - Organizar as evidências dos níveis da capacitação;
-- Publicar a branch de desenvolvimento, criar e integrar o pull request e publicar a tag `p0-intermediario`;
+- Publicar a tag `p0-intermediario`;
 - Consolidar os requisitos do nível avançado e publicar a tag `p0-avancado`;
 - Desenvolver e documentar as etapas subsequentes do P0;
 - Preparar o vídeo demonstrativo;
