@@ -206,6 +206,52 @@ As verificações foram realizadas sem exibir ou compartilhar credenciais reais.
 
 Os resultados não indicaram exposição de credenciais nos cenários investigados. Entretanto, essa inspeção foi direcionada aos padrões pesquisados e ao histórico disponível localmente, não constituindo uma auditoria exaustiva de segurança.
 
+### 4.6. Nível Intermediário — Organização e tratamento de erros
+
+Após a publicação da tag `p0-basico`, foi criada a branch `desenvolvimento-intermediario`. O serviço `llm_service.py` foi refatorado em quatro funções: `carregar_configuracao`, `consultar_llm`, `extrair_resposta` e `analisar_resumo`. Foram preservados o provedor, o modelo e os parâmetros de geração, centralizados em constantes. O timeout configurado é de 30 s por tentativa, sujeito ao comportamento de repetição do SDK.
+
+A configuração passou a rejeitar credenciais compostas apenas por espaços. Foram diferenciados os erros de timeout e conexão, ampliado o tratamento de indisponibilidade (HTTP 500, 502, 503 e 504) e explicitada a validação de respostas vazias ou com estrutura inesperada.
+
+As alterações no serviço e nos testes foram registradas no commit `4cf1e27` (`feat: refatora servico LLM e amplia tratamento de erros e testes`). A integração da branch à principal permanece pendente.
+
+### 4.7. Ampliação dos testes automatizados
+
+Os cinco testes anteriores foram executados após a refatoração. Em seguida, seis novos cenários foram adicionados ao arquivo `test_llm_service.py`.
+
+| Cenário | Resultado esperado |
+|---|---|
+| Preparação do prompt | Construção adequada do prompt |
+| Credencial ausente | Mensagem de chave não configurada |
+| Credencial inválida (401) | Mensagem de autenticação ou permissão |
+| Falha de comunicação | Mensagem de falha de conexão |
+| Resposta válida | Retorno do texto simulado |
+| Credencial contendo apenas espaços | Mensagem de chave não configurada |
+| Serviço indisponível (503) | Mensagem de indisponibilidade |
+| Limite de requisições (429) | Mensagem de limite atingido |
+| Timeout | Mensagem específica de tempo limite |
+| Resposta vazia | Mensagem de resposta vazia |
+| Resposta inesperada (lista de escolhas vazia) | Mensagem de formato inesperado |
+
+Comando executado no ambiente original:
+
+```bash
+python -m unittest test_prompt test_llm_service -v
+```
+
+A execução local apresentou `Ran 11 tests` e status final `OK`, confirmando a aprovação dos 11 testes, sem falhas. O tempo de execução não foi registrado. Os testes do serviço utilizam simulações, sem chamadas reais à API. A reprodução dos 11 testes em ambiente independente permanece pendente.
+
+### 4.8. Validação da integração real após a refatoração
+
+Foi executada uma chamada real ao GroqCloud com um resumo fictício sobre a detecção eletroquímica de resíduos de disparo. O objetivo era identificar estudos experimentais com técnicas eletroquímicas, excluindo estudos exclusivamente ópticos ou microscópicos.
+
+**Resumo utilizado:**
+
+> This study investigates the application of square-wave voltammetry for detecting lead and antimony in gunshot residue samples using modified carbon electrodes. The proposed method demonstrated promising analytical sensitivity for forensic applications.
+
+A aplicação retornou a classificação “Potencialmente relevante”, apresentou justificativa, reproduziu trechos do resumo como evidências e recomendou a leitura do texto completo. A comunicação real e a apresentação do resultado foram verificadas.
+
+Entretanto, a justificativa mencionou “prata e antimony”, enquanto o resumo indicava *lead and antimony* (chumbo e antimônio). A classificação foi coerente com os critérios, mas a interpretação química apresentou um erro factual. O resultado foi preservado como evidência de que uma resposta estruturalmente adequada pode conter imprecisões científicas. A execução não constitui validação da precisão científica do modelo.
+
 ## 5. Decisões técnicas
 
 A aplicação utiliza Python por sua simplicidade e disponibilidade de bibliotecas para integração com serviços de LLM.
@@ -224,11 +270,13 @@ A criação de um ambiente virtual separado permitiu verificar a instalação e 
 
 O controle de versão com Git e GitHub permitiu registrar a evolução do projeto, identificar a versão corrigida e verificar o comportamento do código efetivamente publicado.
 
+A separação do serviço em funções foi escolhida em vez de manter uma função única, para facilitar a manutenção e a identificação de falhas. A diferenciação de timeout e conexão permite mensagens mais específicas sem aumentar o escopo funcional.
+
 ## 6. Limitações identificadas
 
 O SciScreen não realiza uma avaliação científica definitiva dos artigos.
 
-As respostas da LLM podem apresentar erros de interpretação, omissões ou classificações inadequadas.
+As respostas da LLM podem apresentar erros de interpretação, omissões ou classificações inadequadas. Na execução real do nível intermediário, foi observada a substituição incorreta de chumbo por prata na justificativa, apesar da reprodução correta do trecho original nas evidências.
 
 A qualidade da análise depende da clareza dos critérios fornecidos pelo usuário e do conteúdo do resumo.
 
@@ -258,12 +306,19 @@ Embora as versões das dependências diretas estejam especificadas no arquivo `r
 - Execução conjunta dos cinco testes automatizados em ambiente independente;
 - Verificação direcionada do histórico e da proteção das credenciais.
 
+- Publicação da tag `p0-basico`;
+- Criação da branch `desenvolvimento-intermediario`;
+- Refatoração do serviço de LLM e ampliação da suíte para onze testes;
+- Execução real após a refatoração e identificação de erro científico na resposta.
+
 ### 7.2. Atividades pendentes
 
-- Atualizar o README com os cinco testes aprovados e as verificações de segurança;
+- Atualizar o README com as melhorias do nível intermediário;
+- Reproduzir os 11 testes automatizados em ambiente independente;
 - Consolidar as evidências de execução da aplicação;
 - Organizar as evidências dos níveis da capacitação;
-- Verificar e implementar os requisitos de versionamento, tags e pull request;
+- Publicar a branch de desenvolvimento, criar e integrar o pull request e publicar a tag `p0-intermediario`;
+- Consolidar os requisitos do nível avançado e publicar a tag `p0-avancado`;
 - Desenvolver e documentar as etapas subsequentes do P0;
 - Preparar o vídeo demonstrativo;
 - Concluir as atividades de avaliação por pares previstas na capacitação.
@@ -279,5 +334,7 @@ A verificação em ambiente independente permitiu identificar uma limitação no
 A correção implementada eliminou a dependência dos testes em relação à configuração local das credenciais, permitindo a aprovação dos quatro cenários avaliados na versão publicada do projeto.
 
 Esse processo evidenciou um ciclo de desenvolvimento composto por implementação, teste, identificação de falha, diagnóstico, correção, versionamento e nova verificação.
+
+No nível intermediário, a refatoração ampliou o tratamento explícito de falhas e a cobertura planejada dos testes. A chamada real confirmou a continuidade do fluxo, mas revelou um erro de interpretação química, reforçando a necessidade de revisão humana.
 
 O projeto permanece em desenvolvimento, com foco na consolidação da reprodutibilidade, na documentação das evidências e na conclusão dos requisitos da capacitação.
