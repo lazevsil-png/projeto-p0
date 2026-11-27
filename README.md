@@ -8,7 +8,7 @@ Python 3.13 · GroqCloud API · **Em desenvolvimento**
 
 ---
 
-## 01 / Visão geral
+## 01 | Visão geral
 
 A presença de palavras-chave em um resumo não garante que um estudo seja relevante para uma pergunta de pesquisa. O **SciScreen** foi concebido para apoiar a triagem inicial de literatura científica, comparando o conteúdo de um resumo com o objetivo e os critérios de elegibilidade definidos pelo pesquisador.
 
@@ -16,7 +16,7 @@ A ferramenta propõe uma classificação preliminar acompanhada de justificativa
 
 > O SciScreen não substitui a avaliação crítica do pesquisador nem determina a inclusão definitiva de um estudo.
 
-## 02 / Funcionamento
+## 02 | Funcionamento
 
 O programa recebe três entradas:
 
@@ -45,7 +45,7 @@ Objetivo + Critérios + Resumo
 
 Na versão inicial, cada execução processa um resumo fornecido no terminal.
 
-## 03 / Classificação
+## 03 | Classificação
 
 | Resultado | Interpretação |
 | --- | --- |
@@ -55,7 +55,7 @@ Na versão inicial, cada execução processa um resumo fornecido no terminal.
 
 As categorias são **recomendações de triagem**, não decisões definitivas de elegibilidade.
 
-## 04 / Estrutura
+## 04 | Estrutura
 
 ```text
 projeto-p0/
@@ -79,7 +79,7 @@ projeto-p0/
 | --- | --- |
 | `main.py` | Receber entradas e apresentar o resultado |
 | `prompt_sciscreen.py` | Construir as instruções para a LLM |
-| `llm_service.py` | Realizar a comunicação com a API |
+| `llm_service.py` | Carregar a configuração, consultar a API e validar a resposta |
 | `test_prompt.py` | Testar a construção do prompt |
 | `teste_gemini.py` | Testar a comunicação com o Gemini |
 | `listar_modelos.py` | Consultar modelos disponibilizados pela API |
@@ -88,7 +88,18 @@ projeto-p0/
 | `teste_groq.py` | Verificar a comunicação real com o GroqCloud |
 | `RELATORIO_EXECUCAO.md` | Documentar a evolução, os testes e as decisões técnicas |
 
-## 05 / Instalação
+### Organização do serviço LLM
+
+| Função | Responsabilidade |
+| --- | --- |
+| `carregar_configuracao()` | Ler e validar a credencial |
+| `consultar_llm()` | Enviar a solicitação ao GroqCloud |
+| `extrair_resposta()` | Extrair e validar o conteúdo retornado |
+| `analisar_resumo()` | Coordenar o fluxo e tratar falhas |
+
+Os parâmetros do modelo foram centralizados: temperatura 0,2, timeout configurado de 30 s e limite de 1500 tokens de conclusão.
+
+## 05 | Instalação
 
 **Pré-requisito:** Python 3.13 e acesso à internet para comunicação com a API.
 
@@ -173,13 +184,13 @@ Para verificar o funcionamento do serviço de LLM e a construção do prompt ap�
 python -m unittest test_prompt test_llm_service -v
 ```
 
-Esse comando executa cinco testes automatizados utilizando simulações, sem realizar chamadas reais à API e sem exigir uma chave de API configurada.
+Esse comando executa 11 testes automatizados utilizando simulações, sem realizar chamadas reais à API e sem exigir uma chave de API configurada.
 
-O procedimento de clonagem, criação do ambiente virtual, instalação das dependências e execução dos cinco testes foi verificado com sucesso em um ambiente independente, utilizando Windows e Python 3.13.
+O procedimento de clonagem, criação do ambiente virtual, instalação das dependências e execução dos cinco testes da versão básica foi verificado com sucesso em um ambiente independente, utilizando Windows e Python 3.13.
 
-Para executar a aplicação com uma análise real, consulte a seção **06 / Execução e testes**.
+Para executar a aplicação com uma análise real, consulte a seção **06 | Execução e testes**.
 
-## 06 / Execução e testes
+## 06 | Execução e testes
 
 Com o ambiente configurado, execute:
 
@@ -205,16 +216,22 @@ Para executar os testes do serviço de LLM:
 python -m unittest test_llm_service.py -v
 ```
 
-Os quatro testes verificam:
+Os dez testes do serviço de LLM verificam:
 
 - Ausência da chave de API;
 - Credencial inválida (HTTP 401);
 - Falha de comunicação;
-- Retorno de uma resposta válida.
+- Retorno de uma resposta válida;
+- Credencial contendo apenas espaços;
+- Serviço indisponível (HTTP 503);
+- Limite de requisições (HTTP 429);
+- Timeout;
+- Resposta vazia;
+- Resposta em formato inesperado.
 
 Os testes utilizam simulações e não realizam chamadas reais à API, sendo independentes da configuração de credenciais reais.
 
-**Resultados observados:**
+**Resultados históricos do nível básico:**
 
 | Ambiente | Testes aprovados |
 | --- | ---: |
@@ -242,13 +259,15 @@ Para executar os testes da construção do prompt:
 python -m unittest test_prompt.py
 ```
 
-Para executar os cinco testes conjuntamente:
+Para executar os 11 testes conjuntamente:
 
 ```bash
 python -m unittest test_prompt test_llm_service -v
 ```
 
-**Resultado consolidado em ambiente virtual independente:** cinco testes aprovados (5/5), sem falhas. Os quatro testes do serviço de LLM e o teste de construção do prompt não exigem chamadas reais à API.
+**Resultado histórico do nível básico em ambiente virtual independente:** cinco testes aprovados (5/5), sem falhas. Os quatro testes do serviço de LLM e o teste de construção do prompt não exigem chamadas reais à API.
+
+**Nível intermediário:** 11 testes automatizados aprovados (11/11), sem falhas, no ambiente local de desenvolvimento. Os novos cenários foram implementados no commit `4cf1e27`. A reprodução em ambiente independente permanece pendente.
 
 ### Demonstração sem API
 
@@ -266,7 +285,7 @@ A integração com o GroqCloud foi executada com sucesso, incluindo uma chamada 
 
 A aplicação também demonstrou validação de entradas obrigatórias e tratamento de falhas simuladas.
 
-A precisão científica das classificações ainda não foi avaliada sistematicamente.
+Após a refatoração, uma nova chamada real com resumo fictício sobre voltametria de onda quadrada e GSR retornou uma classificação coerente, mas traduziu incorretamente `lead` (chumbo) como prata na justificativa. As evidências textuais preservaram o trecho original. A precisão científica das classificações ainda não foi avaliada sistematicamente.
 
 ### Exemplo de utilização
 
@@ -306,7 +325,7 @@ A resposta acima é ilustrativa e não representa uma saída registrada de uma e
 
 O SciScreen oferece apoio à triagem inicial; a decisão de elegibilidade permanece sob responsabilidade do pesquisador.
 
-## 07 / Limitações
+## 07 | Limitações
 
 - A qualidade da triagem depende da clareza dos objetivos e critérios fornecidos pelo pesquisador.
 - Resumos científicos podem omitir informações necessárias para avaliar a elegibilidade de um estudo.
@@ -314,12 +333,12 @@ O SciScreen oferece apoio à triagem inicial; a decisão de elegibilidade perman
 - A aplicação processa um resumo por execução e não realiza buscas automáticas em bases científicas.
 - A comunicação com o GroqCloud depende de conexão com a internet, credencial válida, disponibilidade do serviço e limites de utilização da API.
 - Os testes automatizados verificam o comportamento do código em cenários específicos, mas não demonstram a precisão científica das classificações.
-- A instalação das dependências e os cinco testes automatizados foram verificados em ambiente virtual independente, utilizando Windows e Python 3.13. A compatibilidade com outros sistemas operacionais ainda não foi avaliada.
+- A instalação das dependências e os cinco testes automatizados do nível básico foram verificados em ambiente virtual independente, utilizando Windows e Python 3.13. A reprodução dos 11 testes da versão intermediária e a compatibilidade com outros sistemas operacionais ainda não foram verificadas.
 - As versões das dependências diretas estão especificadas no arquivo `requirements.txt`, mas as dependências transitivas não estão integralmente fixadas.
 
 O SciScreen é uma ferramenta de apoio à triagem preliminar. A decisão final de inclusão ou exclusão de artigos permanece sob responsabilidade do pesquisador.
 
-## 08 / Desenvolvimento
+## 08 | Desenvolvimento
 
 O SciScreen está sendo desenvolvido no âmbito do **P0 — Primeiro fluxo com LLM**, da capacitação do **Instituto Hardware BR**.
 
@@ -342,15 +361,22 @@ O desenvolvimento contempla entrada e validação de dados, construção de prom
 - [x] Aprovação dos cinco testes automatizados em ambiente independente.
 - [x] Verificação direcionada de segurança das credenciais no histórico local e no estado atual do Git.
 - [ ] Consolidação das evidências dos níveis da capacitação.
-- [ ] Versionamento por tags e pull request.
+- [x] Publicação da tag `p0-basico`.
+- [x] Criação da branch `desenvolvimento-intermediario`.
+- [x] Refatoração do serviço LLM e ampliação para 11 testes.
+- [x] Execução real após a refatoração.
+- [x] Aprovação dos 11 testes automatizados no ambiente local.
+- [ ] Reprodução da versão intermediária em ambiente independente.
+- [ ] Integração da branch por pull request e publicação da tag `p0-intermediario`.
+- [ ] Publicação da tag `p0-avancado`.
 - [ ] Vídeo demonstrativo.
 - [ ] Conclusão das demais atividades da capacitação.
 
 A evolução do projeto, as decisões técnicas, os testes realizados e as limitações identificadas estão documentados no [Relatório de Execução](RELATORIO_EXECUCAO.md).
 
-**Situação atual:** fluxo principal funcional, integração real com a LLM demonstrada cinco testes automatizados aprovados em ambiente virtual independente e verificações direcionadas de segurança concluídas. O projeto permanece em desenvolvimento.
+**Situação atual:** fluxo principal funcional, integração real com a LLM demonstrada após a refatoração, cinco testes do nível básico aprovados em ambiente independente e 11 testes do nível intermediário aprovados no ambiente local. A integração à branch principal permanece pendente.
 
 ---
 
-**SciScreen.**  
+**SciScreen.**
 *Research support, not automated scientific judgment.*
